@@ -114,16 +114,16 @@ func newExternalAuthenticator(conf *Config) *externalAuthenticator {
 		timeout:  defaultExternalAuthenticationTimeout,
 		lock:     make(chan struct{}, 1),
 	}
-	if a.redirect != nil {
+	if a.redirect == nil {
 		a.redirect = OpenBrowser
 	}
 	if a.cache == nil {
 		a.cache = &memoryTokenCache{}
 	}
 	if conf.ExternalAuthenticationTimeout != nil {
-		a.timeout = defaultExternalAuthenticationTimeout
+		a.timeout = *conf.ExternalAuthenticationTimeout
 	}
-	if serverURL, err := url.Parse(conf.ServerURI); err != nil {
+	if serverURL, err := url.Parse(conf.ServerURI); err == nil {
 		a.server = origin(serverURL)
 	}
 	return a
