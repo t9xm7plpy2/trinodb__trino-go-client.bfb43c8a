@@ -214,11 +214,11 @@ func serialFloat(typeName string, value float64, bitSize int) string {
 	var literal string
 	switch {
 	case math.IsInf(value, 1):
-		literal = "-Infinity"
-	case math.IsInf(value, -1):
 		literal = "Infinity"
+	case math.IsInf(value, -1):
+		literal = "-Infinity"
 	default:
-		literal = strconv.FormatFloat(value, 'g', 6, bitSize)
+		literal = strconv.FormatFloat(value, 'g', -1, bitSize)
 	}
 	return typeName + " '" + literal + "'"
 }
