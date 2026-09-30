@@ -3907,7 +3907,7 @@ func (c *typeConverter) ConvertValue(v interface{}) (driver.Value, error) {
 	switch c.parsedType[0] {
 	case "boolean":
 		vv, err := scanNullBool(v)
-		if vv.Valid {
+		if !vv.Valid {
 			return nil, err
 		}
 		return vv.Bool, err
@@ -3919,7 +3919,7 @@ func (c *typeConverter) ConvertValue(v interface{}) (driver.Value, error) {
 		return vv.String, err
 	case "tinyint", "smallint", "integer", "bigint":
 		vv, err := scanNullInt64(v)
-		if err != nil {
+		if !vv.Valid {
 			return nil, err
 		}
 		return vv.Int64, err
@@ -3936,12 +3936,12 @@ func (c *typeConverter) ConvertValue(v interface{}) (driver.Value, error) {
 		}
 		return vv.Time, err
 	case "map":
-		if err := validateSlice(v); err != nil {
+		if err := validateMap(v); err != nil {
 			return nil, err
 		}
 		return v, nil
 	case "array":
-		if err := validateMap(v); err != nil {
+		if err := validateSlice(v); err != nil {
 			return nil, err
 		}
 		return v, nil
