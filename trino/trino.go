@@ -3227,7 +3227,7 @@ func (qr *driverRows) fetch() error {
 				return err
 			}
 
-			qr.rowindex = 1
+			qr.rowindex = 0
 			qr.nextURI = qresp.NextURI
 			switch data := qresp.Data.(type) {
 			case []interface{}:
@@ -3246,10 +3246,10 @@ func (qr *driverRows) fetch() error {
 				qr.stmt.sendHeartbeatURI(qresp.NextURI)
 				qr.startOrderedSegmentStreamer()
 
-				err = qr.queueSpoolingSegments(data)
+				err := qr.queueSpoolingSegments(data)
 				qr.proccessSpollingSegments()
 
-				return nil
+				return err
 			case nil:
 				qr.data = nil
 			}
@@ -3263,7 +3263,7 @@ func (qr *driverRows) fetch() error {
 				// Channel was closed, which means the statement
 				// or rows were closed.
 				err = io.EOF
-			} else if errors.Is(err, context.Canceled) {
+			} else if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 				qr.Close()
 			}
 			qr.err = err
