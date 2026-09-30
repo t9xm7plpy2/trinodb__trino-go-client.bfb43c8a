@@ -237,14 +237,17 @@ func parseChallenges(value string) []authChallenge {
 		}
 		c := authChallenge{scheme: scheme, params: make(map[string]string)}
 		for {
+			start := p.i
 			p.skip(" \t,")
 			name := p.token()
 			p.skip(" \t")
 			if name == "" || !p.consume('=') {
+				// a name without '=' starts the next challenge
+				p.i = start
 				break
 			}
 			p.skip(" \t")
-			c.params[strings.ToUpper(name)] = p.value()
+			c.params[strings.ToLower(name)] = p.value()
 		}
 		challenges = append(challenges, c)
 	}
