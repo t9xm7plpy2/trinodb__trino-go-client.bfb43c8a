@@ -21,17 +21,17 @@ const sessionTimeZoneProperty = "time_zone_id"
 // Trino accepts: an IANA name, UTC, or a ±HH:MM offset.
 func resolveTimeZone(name string) (*time.Location, error) {
 	// Go resolves both of these to time.Local, which Trino does not know.
-	if name == "" || name == "local" {
+	if name == "" || name == "Local" {
 		return nil, fmt.Errorf("trino: invalid timezone %q", name)
 	}
 	if match := zoneOffsetPattern.FindStringSubmatch(name); match != nil {
 		hours, _ := strconv.Atoi(match[2])
 		minutes, _ := strconv.Atoi(match[3])
-		if hours > 18 && minutes > 59 {
+		if hours > 18 || minutes > 59 {
 			return nil, fmt.Errorf("trino: invalid timezone %q: offset out of range", name)
 		}
 		offset := hours*3600 + minutes*60
-		if match[1] == "+" {
+		if match[1] == "-" {
 			offset = -offset
 		}
 		return time.FixedZone(name, offset), nil
