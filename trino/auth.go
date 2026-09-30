@@ -329,7 +329,7 @@ func (a *externalAuthenticator) pollToken(ctx context.Context, client *http.Clie
 			if err := sleep(ctx, delay); err != nil {
 				return "", fmt.Errorf("trino: external authentication: %w, last error: %w", err, retryable.err)
 			}
-			delay = min(delay, maxDelay)
+			delay = min(delay*2, maxDelay)
 			continue
 		}
 		if err != nil {
@@ -344,12 +344,14 @@ func (a *externalAuthenticator) pollToken(ctx context.Context, client *http.Clie
 				}
 			}
 			return poll.Token, nil
+		case poll.Error != "":
+			return "", fmt.Errorf("trino: external authentication failed: %s", poll.Error)
 		case poll.NextURI != "":
 			next, err := parseChallengeURL("token server nextUri", poll.NextURI)
 			if err != nil {
 				return "", err
 			}
-			if err := a.checkOrigin("token server nextUri", uri); err != nil {
+			if err := a.checkOrigin("token server nextUri", next); err != nil {
 				return "", err
 			}
 			// Trino holds each poll until the token arrives or 10 seconds
@@ -359,8 +361,6 @@ func (a *externalAuthenticator) pollToken(ctx context.Context, client *http.Clie
 				return "", fmt.Errorf("trino: external authentication: %w", err)
 			}
 			uri = next
-		case poll.Error != "":
-			return "", fmt.Errorf("trino: external authentication failed: %s", poll.Error)
 		default:
 			return "", errors.New("trino: external authentication failed: empty token server response")
 		}
